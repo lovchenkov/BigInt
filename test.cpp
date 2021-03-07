@@ -2,7 +2,7 @@
 
 using namespace std;
 
-struct LONG_INT{
+struct BigInt{
 private:
 
     vector <int> _digits; // storing digits in the reversed order to simplify realisation
@@ -10,11 +10,11 @@ private:
 
 public:
 
-    LONG_INT() {
+    BigInt() {
         _sign = 0;
     }
 
-    LONG_INT(long long number) {
+    BigInt(long long number) {
         if(number > 0){
             _sign = 1;
         }else{
@@ -29,7 +29,7 @@ public:
         }
     }
 
-    LONG_INT(string number) {
+    BigInt(string number) {
         if(number[0] == '-'){
             _sign = 0;
             for(int i = number.size() - 1; i > 0; i --){
@@ -46,22 +46,23 @@ public:
         }
     }
 
-    LONG_INT(vector <int> digits, int sign) {
+    BigInt(vector <int> digits, int sign) {
         _digits = digits;
         _sign = sign;
     }
 
-    LONG_INT(const LONG_INT& copied) {
+    BigInt(const BigInt& copied) {
         _digits = copied._digits;
         _sign = copied._sign;
     }
 
-    LONG_INT& operator=(const LONG_INT& other) {
+    BigInt& operator=(const BigInt& other) {
         _digits = other._digits;
         _sign = other._sign;
+        return (*this);
     }
 
-    LONG_INT& operator-() {
+    BigInt& operator-() {
         if(_digits.size() == 0 || (_digits.size() == 1 && _digits[0] == 0)){
 
         }else{
@@ -70,7 +71,7 @@ public:
         return (*this);
     }
 
-    LONG_INT plus(const LONG_INT& b) const{
+    BigInt plus(const BigInt& b) const{
         int carry = 0;
         vector <int> result;
         for(int i = 0; i < max((_digits).size(), (b._digits).size()); i ++){
@@ -88,16 +89,16 @@ public:
         if(carry > 0){
             result.push_back(1);
         }
-        LONG_INT SUM(result, 1);
+        BigInt SUM(result, 1);
 
         return SUM;
     }
 
-    LONG_INT minus(const LONG_INT& t) const {
-        LONG_INT b = t;
-        LONG_INT a (*this); //firstly we need to check if a < b. If it's true, then swap them
+    BigInt minus(const BigInt& t) const {
+        BigInt b = t;
+        BigInt a (*this); //firstly we need to check if a < b. If it's true, then swap them
         if(a.zero() && b.zero()){
-            return LONG_INT(0);
+            return BigInt(0);
         }
         bool whoisbigger = false;
         if((a._digits).size() > (b._digits).size()){
@@ -146,12 +147,12 @@ public:
         for(int i = 0; i <= j; i ++){
             fresult.push_back(result[i]);
         }
-        LONG_INT RESULT(fresult, sign);
+        BigInt RESULT(fresult, sign);
         return RESULT;
     }
 
-    bool bigger(const LONG_INT& b) const {
-        LONG_INT a (*this);
+    bool bigger(const BigInt& b) const {
+        BigInt a (*this);
         bool whoisbigger = true;
         if((a._digits).size() < (b._digits).size()){
             whoisbigger = false;
@@ -171,7 +172,7 @@ public:
         }
     }
 
-    LONG_INT multiply(const LONG_INT& b) const {
+    BigInt multiply(const BigInt& b) const {
         vector <int> answer(b._digits.size() + _digits.size() + 1, 0);
         for(int i = 0; i < _digits.size(); i ++){
             for(int j = 0; j < b._digits.size(); j ++){
@@ -191,22 +192,22 @@ public:
         for(int i = 0; i <= j; i ++){
             fresult.push_back(answer[i]);
         }
-        LONG_INT RESULT(fresult, 1);
+        BigInt RESULT(fresult, 1);
         return RESULT;
     }
 
-    LONG_INT division(const LONG_INT& b) const {
-        LONG_INT a(*this);
+    BigInt division(const BigInt& b) const {
+        BigInt a(*this);
         if(!a.bigger(b)){
             vector <int> ans;
-            LONG_INT ANS(ans, 0);
+            BigInt ANS(ans, 0);
             return ANS;
         }
         vector <int> emptty;
         vector <int> answer;
-        LONG_INT current(emptty, 1);
+        BigInt current(emptty, 1);
         bool iszeros = true;
-        LONG_INT ten(10);
+        BigInt ten(10);
         for(int i = a._digits.size()-1; i > -1; i --){
             current = current*ten + a._digits[i];
             if(!current.bigger(b)){
@@ -217,17 +218,17 @@ public:
                 iszeros = false;
                 bool t = false;
                 long long ii = 1;
-                LONG_INT one(1);
-                LONG_INT I;
+                BigInt one(1);
+                BigInt I;
                 while(!t){
-                    LONG_INT I(ii);
+                    BigInt I(ii);
                     if(current.bigger(b*I) && !current.bigger(b*(I+one))){
                         t = true;
                     }
                     ii ++;
                 }
                 answer.push_back(ii-1);
-                LONG_INT mult(ii-1);
+                BigInt mult(ii-1);
                 current = current - b*mult;
                 //cout << "**" << current << "**" << endl;
             }
@@ -236,16 +237,16 @@ public:
         for(int i = answer.size()-1; i > -1; i --){
             result.push_back(answer[i]);
         }
-        LONG_INT RESULT(result, 1);
+        BigInt RESULT(result, 1);
         return RESULT;
     }
 
 
-    LONG_INT operator+(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    BigInt operator+(const BigInt& other) const {
+        BigInt it(*this);
         if(it._sign == other._sign){
             if(it._sign == 0){
-                LONG_INT c = it.plus(other);
+                BigInt c = it.plus(other);
                 c._sign = 0;
                 return c;
             }else{
@@ -260,8 +261,8 @@ public:
         }
     }
 
-    LONG_INT operator-(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    BigInt operator-(const BigInt& other) const {
+        BigInt it(*this);
         if(it._sign == other._sign){
             if(it._sign == 0){
                 return other.minus(it);
@@ -270,7 +271,7 @@ public:
             }
         }else{
             if(it._sign == 0){
-                LONG_INT c = it.plus(other);
+                BigInt c = it.plus(other);
                 c._sign = 0;
                 return c;
             }else{
@@ -279,60 +280,60 @@ public:
         }
     }
 
-    LONG_INT operator*(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    BigInt operator*(const BigInt& other) const {
+        BigInt it(*this);
         /*if(other._digits.size() == 0 || it._digits.size() == 0){
-            return LONG_INT(0);
+            return BigInt(0);
         }*/
         if(it._sign == other._sign){
-            LONG_INT answer = it.multiply(other);
+            BigInt answer = it.multiply(other);
             return answer;
         }else{
-            LONG_INT answer = it.multiply(other);
+            BigInt answer = it.multiply(other);
             answer._sign = 0;
             return answer;
         }
     }
 
-    LONG_INT operator/(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    BigInt operator/(const BigInt& other) const {
+        BigInt it(*this);
         if(it._sign == other._sign){
             if(it._sign == 1){
-                LONG_INT answer = it.division(other);
+                BigInt answer = it.division(other);
                 return answer;
             }else{
-                LONG_INT itt;
+                BigInt itt;
                 itt._digits = it._digits;
                 itt._sign = 1 - it._sign;
-                LONG_INT o;
+                BigInt o;
                 o._digits = other._digits;
                 o._sign = 1 - other._sign;
-                LONG_INT answer = itt.division(o);
+                BigInt answer = itt.division(o);
                 return answer;
 
             }
         }else{
             if(other._sign == 0){
-                LONG_INT o;
+                BigInt o;
                 o._digits = other._digits;
                 o._sign = 1 - other._sign;
-            LONG_INT answer = it.division(o);
+            BigInt answer = it.division(o);
             answer._sign = 0;
             return answer;
             }else{
-             LONG_INT itt;
+             BigInt itt;
                 itt._digits = it._digits;
                 itt._sign = 1 - it._sign;
-            LONG_INT answer = itt.division(other);
+            BigInt answer = itt.division(other);
             answer._sign = 0;
             return answer;
             }
         }
     }
 
-    LONG_INT operator%(const LONG_INT& other) const {
-        LONG_INT it(*this);
-        LONG_INT div = it / other;
+    BigInt operator%(const BigInt& other) const {
+        BigInt it(*this);
+        BigInt div = it / other;
         return it - other*div;
     }
 
@@ -343,8 +344,8 @@ public:
         return false;
     }
 
-    bool operator!=(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    bool operator!=(const BigInt& other) const {
+        BigInt it(*this);
         if(it.zero() && other.zero()){
             return false;
         }
@@ -363,8 +364,8 @@ public:
 
     }
 
-    bool operator==(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    bool operator==(const BigInt& other) const {
+        BigInt it(*this);
         if(it.zero() && other.zero()){
             return true;
         }
@@ -383,8 +384,8 @@ public:
 
     }
 
-    bool operator<(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    bool operator<(const BigInt& other) const {
+        BigInt it(*this);
         if(it._sign == 0 && other._sign == 1){
             return true;
         }
@@ -408,8 +409,8 @@ public:
         return true;
     }
 
-    bool operator>(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    bool operator>(const BigInt& other) const {
+        BigInt it(*this);
         if(it._sign == 0 && other._sign == 1){
             return false;
         }
@@ -433,8 +434,8 @@ public:
         return true;
     }
 
-    bool operator<=(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    bool operator<=(const BigInt& other) const {
+        BigInt it(*this);
         if(it._sign == 0 && other._sign == 1){
             return true;
         }
@@ -458,8 +459,8 @@ public:
         return true;
     }
 
-    bool operator>=(const LONG_INT& other) const {
-        LONG_INT it(*this);
+    bool operator>=(const BigInt& other) const {
+        BigInt it(*this);
         if(it._sign == 0 && other._sign == 1){
             return false;
         }
@@ -483,11 +484,11 @@ public:
         return true;
     }
 
-    friend ostream& operator<<(ostream&, const LONG_INT&);
+    friend ostream& operator<<(ostream&, const BigInt&);
 
 };
 
-ostream& operator<<(ostream& out, const LONG_INT& it){
+ostream& operator<<(ostream& out, const BigInt& it){
     if(it._digits.size() == 0){
         out << 0;
     }else{
@@ -501,7 +502,7 @@ ostream& operator<<(ostream& out, const LONG_INT& it){
     return out;
 }
 
-std::string toString(const LONG_INT& value)
+std::string toString(const BigInt& value)
 {
     std::stringstream buf;
     buf << value;
@@ -510,37 +511,37 @@ std::string toString(const LONG_INT& value)
 
 void check(int64_t x, int64_t y)
 {
-    const LONG_INT bigX = x;
-    const LONG_INT bigY = y;
-    if ((bigX + bigY) != LONG_INT(x + y))
+    const BigInt bigX = x;
+    const BigInt bigY = y;
+    if ((bigX + bigY) != BigInt(x + y))
     {
         std::cout << x << " + " << y << " != " << x + y << " got " << bigX + bigY << '\n';
     }
 
-    if (bigX - bigY != LONG_INT(x - y))
+    if (bigX - bigY != BigInt(x - y))
     {
         std::cout << x << " - " << y << " != " << x - y << " got " << bigX - bigY << '\n';
     }
 
-    if (bigX * bigY != LONG_INT(x * y))
+    if (bigX * bigY != BigInt(x * y))
     {
         std::cout << x << " * " << y << " != " << x * y << " got " << bigX * bigY << '\n';
     }
 
     if (x != 0 && y != 0)
     {
-        if (bigX / bigY != LONG_INT(x / y))
+        if (bigX / bigY != BigInt(x / y))
         {
             std::cout << x << " / " << y << " != " << x / y << " got " << bigX / bigY << '\n';
         }
-        if (bigX % bigY != LONG_INT(x % y))
+        if (bigX % bigY != BigInt(x % y))
         {
             std::cout << x << " % " << y << " != " << x % y << " got " << bigX % bigY << '\n';
         }
     }
 }
 
-void doCheckEqual(const LONG_INT& actual, const char* expected, size_t line)
+void doCheckEqual(const BigInt& actual, const char* expected, size_t line)
 {
     const auto str = toString(actual);
     if (str != expected)
@@ -554,15 +555,14 @@ void doCheckEqual(const LONG_INT& actual, const char* expected, size_t line)
 
 int main()
 {
-    cout << (LONG_INT(0) != -LONG_INT(0));
-    LONG_INT x = 3;
+    BigInt x = 3;
     checkEqual(x, "3");
-    LONG_INT y = x;
+    BigInt y = x;
     checkEqual(y, "3");
-    LONG_INT z;
+    BigInt z;
     checkEqual(z, "0");
 
-    checkEqual(LONG_INT(-10), "-10");
+    checkEqual(BigInt(-10), "-10");
 
     checkTrue(x == y);
     checkTrue(y == x);
@@ -576,45 +576,45 @@ int main()
 
     checkTrue(!(x < x));
     checkTrue(x < 200);
-    checkTrue(LONG_INT(50) < x);
-    checkTrue(LONG_INT(-500) < x);
-    checkTrue(LONG_INT(-500) < LONG_INT(-200));
+    checkTrue(BigInt(50) < x);
+    checkTrue(BigInt(-500) < x);
+    checkTrue(BigInt(-500) < BigInt(-200));
 
     checkTrue(!(x > x));
-    checkTrue(LONG_INT(200) > x);
-    checkTrue(x > LONG_INT(50));
-    checkTrue(x > LONG_INT(-500));
-    checkTrue(LONG_INT(-200) > LONG_INT(-500));
+    checkTrue(BigInt(200) > x);
+    checkTrue(x > BigInt(50));
+    checkTrue(x > BigInt(-500));
+    checkTrue(BigInt(-200) > BigInt(-500));
     //
     checkTrue(x <= x);
     checkTrue(x <= 200);
-    checkTrue(LONG_INT(50) <= x);
-    checkTrue(LONG_INT(-500) <= x);
-    checkTrue(LONG_INT(-500) <= LONG_INT(-200));
+    checkTrue(BigInt(50) <= x);
+    checkTrue(BigInt(-500) <= x);
+    checkTrue(BigInt(-500) <= BigInt(-200));
 
     checkTrue(x >= x);
-    checkTrue(LONG_INT(200) >= x);
-    checkTrue(x >= LONG_INT(50));
-    checkTrue(x >= LONG_INT(-500));
-    checkTrue(LONG_INT(-200) >= LONG_INT(-500));
-    checkTrue(LONG_INT(0) == -LONG_INT(0));
+    checkTrue(BigInt(200) >= x);
+    checkTrue(x >= BigInt(50));
+    checkTrue(x >= BigInt(-500));
+    checkTrue(BigInt(-200) >= BigInt(-500));
+    checkTrue(BigInt(0) == -BigInt(0));
 
-    checkEqual(LONG_INT(10) + LONG_INT(10), "20");
-    checkEqual(LONG_INT(-10) + LONG_INT(10), "0");
-    checkEqual(LONG_INT(10) + LONG_INT(-10), "0");
-    checkEqual(LONG_INT(-10) + LONG_INT(-10), "-20");
+    checkEqual(BigInt(10) + BigInt(10), "20");
+    checkEqual(BigInt(-10) + BigInt(10), "0");
+    checkEqual(BigInt(10) + BigInt(-10), "0");
+    checkEqual(BigInt(-10) + BigInt(-10), "-20");
     //
-    checkEqual(LONG_INT(10) - LONG_INT(10), "0");
-    checkEqual(LONG_INT(-10) - LONG_INT(10), "-20");
-    checkEqual(LONG_INT(10) - LONG_INT(-10), "20");
-    checkEqual(LONG_INT(-10) - LONG_INT(-10), "0");
-    checkEqual(LONG_INT(0) + LONG_INT(-1), "-1");
-    checkEqual(LONG_INT(0) - LONG_INT(1), "-1");
+    checkEqual(BigInt(10) - BigInt(10), "0");
+    checkEqual(BigInt(-10) - BigInt(10), "-20");
+    checkEqual(BigInt(10) - BigInt(-10), "20");
+    checkEqual(BigInt(-10) - BigInt(-10), "0");
+    checkEqual(BigInt(0) + BigInt(-1), "-1");
+    checkEqual(BigInt(0) - BigInt(1), "-1");
     //
-    checkEqual(LONG_INT(100) - LONG_INT(100), "0");
-    checkEqual(LONG_INT(99) - LONG_INT(100), "-1");
-    checkEqual(LONG_INT(10) - LONG_INT(11), "-1");
-    checkEqual(LONG_INT(20) - LONG_INT(19), "1");
+    checkEqual(BigInt(100) - BigInt(100), "0");
+    checkEqual(BigInt(99) - BigInt(100), "-1");
+    checkEqual(BigInt(10) - BigInt(11), "-1");
+    checkEqual(BigInt(20) - BigInt(19), "1");
 
     for (int i = -21; i <= 21; ++i)
     {
@@ -636,14 +636,14 @@ int main()
         }
     }
     */
-    const LONG_INT big1 = std::numeric_limits<int64_t>::max();
+    const BigInt big1 = std::numeric_limits<int64_t>::max();
     checkEqual(big1, "9223372036854775807");
 
-    const LONG_INT big2 = big1 * big1;
+    const BigInt big2 = big1 * big1;
     std::cout << "9223372036854775807 * 9223372036854775807\n";
     checkEqual(big2, "85070591730234615847396907784232501249");
 
-    const LONG_INT big3 = big2 * big2;
+    const BigInt big3 = big2 * big2;
     std::cout << "85070591730234615847396907784232501249 * 85070591730234615847396907784232501249\n";
     checkEqual(big3, "7237005577332262210834635695349653859421902880380109739573089701262786560001");
 
